@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸運轉盤</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #333;
+            transition: transform 4s ease-out;
+        }
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid red;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>幸運轉盤</h1>
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    </div>
+    <button onclick="spinWheel()">轉動轉盤</button>
+    <p id="result"></p>
+
+    <script>
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        const options = ["免費住宿", "50元折價券", "再試一次", "小禮物", "特別優惠", "飲品免費"];
+        const colors = ["#f39c12", "#e74c3c", "#8e44ad", "#2ecc71", "#3498db", "#e67e22"];
+        let startAngle = 0;
+        let arc = (2 * Math.PI) / options.length;
+        let spinAngle = 0;
+
+        function drawWheel() {
+            for (let i = 0; i < options.length; i++) {
+                let angle = startAngle + i * arc;
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 150, angle, angle + arc, false);
+                ctx.lineTo(150, 150);
+                ctx.fill();
+                ctx.save();
+                ctx.fillStyle = "white";
+                ctx.translate(150 + Math.cos(angle + arc / 2) * 100, 150 + Math.sin(angle + arc / 2) * 100);
+                ctx.rotate(angle + arc / 2);
+                ctx.fillText(options[i], -ctx.measureText(options[i]).width / 2, 10);
+                ctx.restore();
+            }
+        }
+
+        function spinWheel() {
+            let randomAngle = Math.floor(3600 + Math.random() * 360); // 確保旋轉多圈再停下
+            let spinTime = 4000; // 旋轉時間 4 秒
+            let wheel = document.getElementById("wheelCanvas");
+
+            wheel.style.transition = `transform ${spinTime / 1000}s ease-out`;
+            wheel.style.transform = `rotate(${spinAngle + randomAngle}deg)`;
+            spinAngle += randomAngle;
+
+            setTimeout(() => {
+                let finalAngle = spinAngle % 360;
+                let index = Math.floor((360 - finalAngle) / (360 / options.length)) % options.length;
+                document.getElementById("result").innerText = "結果：" + options[index];
+            }, spinTime);
+        }
+
+        drawWheel();
+    </script>
+
+</body>
+</html>
